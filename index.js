@@ -39,7 +39,7 @@ async function run() {
     const petCollection = client.db("petnest").collection("pets");
     const userCollection = client.db("petnest").collection("users");
  
-  
+  // add pets 
     app.post('/pets',async(req,res) =>
         {
             const pet = req.body
@@ -47,6 +47,27 @@ async function run() {
             const result = await petCollection.insertOne(pet);
             res.send(result)
         })
+       //update add pet post
+        app.put('/pets/:id',async(req,res) =>
+          {
+              const id = req.params.id
+              const filter = {_id: new ObjectId(id)}
+              const options ={upsert : true}
+              const updatedpost = req.body
+              const updated = {
+                $set:{
+                    image:updatedpost.image,
+                    petname:updatedpost.petname,
+                    age:updatedpost.age,
+                    category:updatedpost.category,
+                    location:updatedpost.location,
+                    shortnote:updatedpost.shortnote,
+                    description:updatedpost.description,   
+                }
+              }
+              const result = await petCollection.updateOne(filter,updated,options)
+              res.send(result)
+              })
           
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
