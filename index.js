@@ -64,6 +64,7 @@ async function run() {
               const result = await petCollection.findOne(query)
               res.send(result)
           })
+
        //update add pet post
         app.put('/pets/:id',async(req,res) =>
           {
@@ -116,6 +117,7 @@ async function run() {
                         console.log(result)
                         res.send(result)
                     })
+                    // sort 
                   app.get('/allpets', async (req, res) => {
                     const sort = req.query.sort;
                     const search = req.query.search;
@@ -142,6 +144,48 @@ async function run() {
                         res.status(500).send("Internal Server Error");
                     }
                 });
+                app.get('/donations',async(req,res) =>
+                  {
+                      const cursor = donationCollection.find()
+                      const result = await cursor.toArray()
+                      console.log(result)
+                      res.send(result)
+                  })
+                  //get donations by id 
+                  app.get('/donations/:id',async(req,res) =>
+                    {
+                        const id = req.params.id
+                        const query = {_id: new ObjectId(id)}
+                        const result = await donationCollection.findOne(query)
+                        res.send(result)
+                    })
+                    // sort 
+                    app.get('/alldonations', async (req, res) => {
+                      const sort = req.query.sort;
+                      const search = req.query.search;
+                      let query = {};
+                      if (search) {
+                          query = { posttitle: { $regex: search, $options: 'i' } };
+                      }
+                      let sortOptions = {};
+                      if (sort) {
+                          sortOptions = { date: sort === 'asce' ? 1 : -1 };
+                      }
+                      else {
+                        // Default sorting option if none is specified
+                        sortOptions = { date: -1 }; 
+                    }
+                      try {
+                          const result = await donationCollection
+                              .find(query) 
+                              .sort(sortOptions)
+                              .toArray();
+                          res.send(result);
+                      } catch (error) {
+                          console.error("Error fetching data:", error);
+                          res.status(500).send("Internal Server Error");
+                      }
+                  });
           
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
