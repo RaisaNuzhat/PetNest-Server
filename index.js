@@ -37,6 +37,7 @@ async function run() {
   try {
     
     const petCollection = client.db("petnest").collection("pets");
+    const donationCollection = client.db("petnest").collection("donations");
     const userCollection = client.db("petnest").collection("users");
  
   // add pets 
@@ -47,7 +48,15 @@ async function run() {
             const result = await petCollection.insertOne(pet);
             res.send(result)
         })
-         //get by id
+        // add donations
+        app.post('/donations',async(req,res) =>
+          {
+              const donationCamp = req.body
+              console.log('new donation campaign',donationCamp)
+              const result = await donationCollection.insertOne(donationCamp);
+              res.send(result)
+          })
+         //get by id for view details
          app.get('/pets/:id',async(req,res) =>
           {
               const id = req.params.id
@@ -76,6 +85,7 @@ async function run() {
               const result = await petCollection.updateOne(filter,updated,options)
               res.send(result)
               })
+              
               //email filtering
               app.get('/pet/:hostemail',async(req,res) =>
                 {
