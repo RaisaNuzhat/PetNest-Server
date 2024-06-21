@@ -56,6 +56,29 @@ async function run() {
               const result = await donationCollection.insertOne(donationCamp);
               res.send(result)
           })
+          //save user data in database
+          app.put('/user',async(req,res) =>
+            {
+                const user = req.body
+                 // check if user already exists in db
+                const isExist = await userCollection.findOne({email:user?.email})
+                if(isExist)
+                  {
+                    return res.send(isExist)
+                  }
+                const options ={upsert:true}
+                const query = {email:user?.email}
+                //set first time
+                const updateDoc = {
+                  $set:{
+                    ...user,
+                    timestamp:Date.now(),
+                  }
+                }
+                const result = await userCollection.updateOne(query,updateDoc,options)
+                res.send(result)
+            })
+
          //get by id for view details
          app.get('/pets/:id',async(req,res) =>
           {
