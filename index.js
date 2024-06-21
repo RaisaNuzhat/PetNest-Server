@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000
 //  middlewares
 const corsOptions =
 {
-    origin:["http://localhost:5173","",""],
+    origin:["http://localhost:5173"],
     credentials:true,
     optionsSuccessStatus:200,
 }
@@ -47,6 +47,14 @@ async function run() {
             const result = await petCollection.insertOne(pet);
             res.send(result)
         })
+         //get by id
+         app.get('/pets/:id',async(req,res) =>
+          {
+              const id = req.params.id
+              const query = {_id: new ObjectId(id)}
+              const result = await petCollection.findOne(query)
+              res.send(result)
+          })
        //update add pet post
         app.put('/pets/:id',async(req,res) =>
           {
@@ -83,6 +91,39 @@ async function run() {
                       const result = await petCollection.deleteOne(query)
                       res.send(result) 
                   })
+                  app.get('/pets',async(req,res) =>
+                    {
+                        const cursor = petCollection.find()
+                        const result = await cursor.toArray()
+                        console.log(result)
+                        res.send(result)
+                    })
+                  app.get('/allpets', async (req, res) => {
+                    const sort = req.query.sort;
+                    const search = req.query.search;
+                    let query = {};
+                    if (search) {
+                        query = { posttitle: { $regex: search, $options: 'i' } };
+                    }
+                    let sortOptions = {};
+                    if (sort) {
+                        sortOptions = { date: sort === 'asce' ? 1 : -1 };
+                    }
+                    else {
+                      // Default sorting option if none is specified
+                      sortOptions = { date: -1 }; 
+                  }
+                    try {
+                        const result = await petCollection
+                            .find(query) 
+                            .sort(sortOptions)
+                            .toArray();
+                        res.send(result);
+                    } catch (error) {
+                        console.error("Error fetching data:", error);
+                        res.status(500).send("Internal Server Error");
+                    }
+                });
           
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
