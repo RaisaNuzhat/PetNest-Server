@@ -78,6 +78,19 @@ async function run() {
                 const result = await userCollection.updateOne(query,updateDoc,options)
                 res.send(result)
             })
+            // get all users data from db
+            app.get('/users', async (req, res) => {
+              const result = await userCollection.find().toArray()
+              res.send(result)
+            })
+            //get users by email
+            app.get('/user/:email',async(req,res) =>
+              {
+                  const email =req.params.email
+                  const result = await userCollection.find({email})
+                  console.log(result)
+                  res.send(result)
+              })
 
          //get by id for view details
          app.get('/pets/:id',async(req,res) =>
