@@ -85,12 +85,20 @@ async function run() {
               const result = await petCollection.updateOne(filter,updated,options)
               res.send(result)
               })
-              
+
               //email filtering
               app.get('/pet/:hostemail',async(req,res) =>
                 {
                     console.log(req.params.email)
                     const result = await petCollection.find({email: req.params.email}).toArray()
+                    console.log(result)
+                    res.send(result)
+                })
+                 //email filtering
+              app.get('/donation/:hostemail',async(req,res) =>
+                {
+                    console.log(req.params.email)
+                    const result = await donationCollection.find({email: req.params.email}).toArray()
                     console.log(result)
                     res.send(result)
                 })
