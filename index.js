@@ -5,13 +5,15 @@ require('dotenv').config()
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const app = express()
+
 const port = process.env.PORT || 5000
 
 //  middlewares
 const corsOptions =
 {
-    origin:["http://localhost:5173"],
+    origin:["http://localhost:5173","https://th-assignment-a87d3.web.app","https://th-assignment-a87d3.firebaseapp.com"],
     credentials:true,
     optionsSuccessStatus:200,
 }
@@ -39,7 +41,7 @@ async function run() {
     const petCollection = client.db("petnest").collection("pets");
     const donationCollection = client.db("petnest").collection("donations");
     const userCollection = client.db("petnest").collection("users");
- 
+    const donatorCollection = client.db("petnest").collection("donators");
   // add pets 
     app.post('/pets',async(req,res) =>
         {
@@ -56,6 +58,25 @@ async function run() {
               const result = await donationCollection.insertOne(donationCamp);
               res.send(result)
           })
+            // create-payment-intent
+            app.post('/create-payment-intent', async (req, res) => {
+              const price = req.body.maxamount
+              console.log(price)
+              const priceInCent = parseFloat(price) * 100
+              if (!price || priceInCent < 1) return
+              // generate clientSecret
+              const { client_secret } = await stripe.paymentIntents.create({
+                amount: priceInCent,
+                currency: 'usd',
+                // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+                automatic_payment_methods: {
+                  enabled: true,
+                },
+              })
+              // send client secret as response
+              res.send({ clientSecret: client_secret })
+            })
+
           //save user data in database
           app.put('/user',async(req,res) =>
             {
@@ -240,8 +261,8 @@ async function run() {
                   });
           
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     //await client.close();
