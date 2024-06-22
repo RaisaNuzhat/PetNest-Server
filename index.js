@@ -83,11 +83,12 @@ async function run() {
               const result = await userCollection.find().toArray()
               res.send(result)
             })
+
             //get users by email
             app.get('/user/:email',async(req,res) =>
               {
                   const email =req.params.email
-                  const result = await userCollection.find({email})
+                  const result = await userCollection.findOne({email})
                   console.log(result)
                   res.send(result)
               })
