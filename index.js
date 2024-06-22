@@ -79,11 +79,13 @@ async function run() {
                 res.send(result)
             })
             // get all users data from db
-            app.get('/users', async (req, res) => {
-              const result = await userCollection.find().toArray()
-              res.send(result)
-            })
-
+            app.get('/users',async(req,res) =>
+              {
+                  const cursor = userCollection.find()
+                  const result = await cursor.toArray()
+                  console.log(result)
+                  res.send(result)
+              })
             //get users by email
             app.get('/user/:email',async(req,res) =>
               {
@@ -128,15 +130,15 @@ async function run() {
               app.get('/pet/:hostemail',async(req,res) =>
                 {
                     console.log(req.params.email)
-                    const result = await petCollection.find({email: req.params.email}).toArray()
+                    const result = await petCollection.find({hostemail: req.params.hostemail}).toArray()
                     console.log(result)
                     res.send(result)
                 })
                  //email filtering
-              app.get('/donation/:hostemail',async(req,res) =>
+              app.get('/donation/:orgemail',async(req,res) =>
                 {
                     console.log(req.params.email)
-                    const result = await donationCollection.find({email: req.params.email}).toArray()
+                    const result = await donationCollection.find({orgemail: req.params.orgemail}).toArray()
                     console.log(result)
                     res.send(result)
                 })
