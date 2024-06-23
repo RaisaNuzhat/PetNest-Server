@@ -38,9 +38,26 @@ async function run() {
     const petCollection = client.db("petnest").collection("pets");
     const donationCollection = client.db("petnest").collection("donations");
     const userCollection = client.db("petnest").collection("users");
+    const mydonationCollection = client.db("petnest").collection("mydonations");
     const donatorCollection = client.db("petnest").collection("donators");
    
-   
+    // add mydonations
+    app.post("/mydonations", async (req, res) => {
+      const don = req.body;
+      console.log("new pet", don);
+      const result = await mydonationCollection.insertOne(don);
+      res.send(result);
+    });
+    //get my donations 
+    app.get("/don/:email", async (req, res) => {
+      console.log(req.params.email);
+      const query = {'donator.donatoremail': req.params.email}
+      const result = await mydonationCollection.find(query).toArray();
+      console.log(result);
+      res.send(result);
+    });
+
+
     // add pets
     app.post("/pets", async (req, res) => {
       const pet = req.body;
